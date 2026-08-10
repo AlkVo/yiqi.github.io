@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Testing on Yiqi&#39;s blog</title>
+    <link>/tags/testing/</link>
+    <description>Yiqi&#39;s blog (Testing)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    
+      
+        <managingEditor>halfseteamedbun@gmail.com
+          
+            (Yiqi)
+          
+        </managingEditor>
+      
+
+      
+    
+
+    
+    <lastBuildDate>Tue, 07 Apr 2026 00:00:00 +0000</lastBuildDate>
+    
+    <atom:link href="/tags/testing/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>My AI-Assisted Frontend TDD Workflow</title>
+      <link>/posts/ai-tdd-red-green-verify-workflow/</link>
+      <pubDate>Tue, 07 Apr 2026 00:00:00 +0000</pubDate>
+      <author>halfseteamedbun@gmail.com (Yiqi)</author>
+      <guid>/posts/ai-tdd-red-green-verify-workflow/</guid>
+      <description>&lt;h2 id=&#34;background&#34;&gt;
+  Background
+&lt;/h2&gt;&lt;p&gt;AI writes code fast, but speed comes with two notable risks. First, the scope of changes is unpredictable — you ask it to modify one module, and it sometimes changes adjacent code as well, causing cascading issues elsewhere. Second, the output isn&amp;rsquo;t necessarily correct — code that runs doesn&amp;rsquo;t mean the logic is right, and AI can confidently produce something that looks fine but is actually wrong.&lt;/p&gt;
+&lt;p&gt;If these problems aren&amp;rsquo;t caught during development and make it all the way to QA, the cost of tracking them down is far higher than catching them at the coding stage. So the question becomes: &lt;strong&gt;is there a way to automatically catch these issues during coding, rather than relying on manual verification?&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Our answer is TDD. I practiced an AI + TDD workflow on an internal tool platform project called Skills Hub. This article documents the core approach, technical choices, and real cases.&lt;/p&gt;
+&lt;h2 id=&#34;tdd-workflow-red--green--refactor&#34;&gt;
+  TDD Workflow: Red → Green → Refactor
+&lt;/h2&gt;&lt;p&gt;The workflow follows the Red-Green-Refactor cycle, driven by AI assistance.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Step one, Red phase — write tests.&lt;/strong&gt; After reviewing the requirements and API documentation, have AI think through what needs to be verified, then generate the corresponding test cases. At this point, all tests must be failing because no implementation code exists yet. This red state is expected — it confirms that the tests themselves are meaningful, not green-by-default decorations.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Step two, Green phase — implement code.&lt;/strong&gt; The core principle is to write the minimum code needed to make tests pass, without over-engineering. Tests are the acceptance criteria — passing them is what counts. This step can be delegated to AI — the tests are its constraints, no additional natural language instructions needed.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Step three, Refactor phase — verify.&lt;/strong&gt; Instead of running the full test suite, we only run tests related to git changes with a single command: &lt;code&gt;pnpm test:changed&lt;/code&gt;. It uses the git diff plus module dependency graph to determine which tests are affected, running only those for fast feedback. All green means we move to the next cycle.&lt;/p&gt;
+&lt;p&gt;The key insight: in AI-assisted development, &lt;strong&gt;tests are no longer just a quality assurance tool — they become the acceptance criteria you hand to AI&lt;/strong&gt;. You define &amp;ldquo;what correct looks like,&amp;rdquo; and AI figures out &amp;ldquo;how to get there.&amp;rdquo;&lt;/p&gt;
+&lt;h2 id=&#34;two-key-technical-choices&#34;&gt;
+  Two Key Technical Choices
+&lt;/h2&gt;&lt;p&gt;Test cases fall into two categories, each requiring a different technical approach.&lt;/p&gt;
+&lt;h3 id=&#34;data-testid-stable-anchors-for-structural-assertions&#34;&gt;
+  data-testid: Stable Anchors for Structural Assertions
+&lt;/h3&gt;&lt;p&gt;The first category is structural and interaction assertions. We use &lt;code&gt;data-testid&lt;/code&gt; as the primary element locator. Why not text content? Because copy, icons, and translations change frequently during development. &lt;code&gt;data-testid&lt;/code&gt; is a stable anchor that won&amp;rsquo;t break tests just because someone changed a word in the UI.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-tsx&#34; data-lang=&#34;tsx&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;// Text-based assertion: breaks when locale changes
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;&lt;/span&gt;expect(screen.getByText(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;Development Tools&amp;#39;&lt;/span&gt;)).toBeInTheDocument()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;// data-testid assertion: stable regardless of language or copy changes
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;&lt;/span&gt;expect(screen.getByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;category-tab-dev&amp;#39;&lt;/span&gt;)).toBeInTheDocument()
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;data-testid&lt;/code&gt; is just a regular HTML attribute with zero performance impact. You can strip it in production builds with a babel plugin, but we chose to keep it — the QA team reuses the same testids for E2E testing, eliminating the need to maintain two sets of locator strategies.&lt;/p&gt;
+&lt;p&gt;An additional benefit: pure UI refactors (like splitting one large component into two smaller ones) don&amp;rsquo;t require test changes. As long as the &lt;code&gt;data-testid&lt;/code&gt; attributes remain, tests don&amp;rsquo;t care how the component hierarchy changes.&lt;/p&gt;
+&lt;h3 id=&#34;msw-assertions-on-api-data&#34;&gt;
+  MSW: Assertions on API Data
+&lt;/h3&gt;&lt;p&gt;The second category is API data assertions. We use MSW to mock API responses with constructed data, then verify that the data renders correctly on the page. For example, if the API returns &amp;ldquo;Skill 1,&amp;rdquo; the page should display that text; when navigating to page two, the request parameters should include &lt;code&gt;page=2&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;We write component-level unit tests — each test file corresponds to one component, with MSW mocking its API dependencies. The test boundary is the component itself. What we verify is &amp;ldquo;given certain inputs, what behavior should the component exhibit&amp;rdquo;: props-driven rendering, state changes after user interactions, and API data-to-UI mapping.&lt;/p&gt;
+&lt;h2 id=&#34;case-study-1-category-api-ssr-refactoring&#34;&gt;
+  Case Study 1: Category API SSR Refactoring
+&lt;/h2&gt;&lt;p&gt;The first case is an SSR migration of the category API — a refactoring scenario. Skills Hub&amp;rsquo;s category list was originally hardcoded on the frontend and needed to be fetched from a backend API with SSR prefetching. Meanwhile, the InstallCard component was making an API call on every tab switch and needed to switch to SSR-prefetched data with local tab switching. A total of 6 files needed coordinated changes.&lt;/p&gt;
+&lt;h3 id=&#34;red-phase&#34;&gt;
+  Red Phase
+&lt;/h3&gt;&lt;p&gt;I provided the requirements and API documentation to AI in TDD mode. AI only touched test files, leaving business code untouched. It added 4 new test cases:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-tsx&#34; data-lang=&#34;tsx&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;// views-index.test.tsx
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;&lt;/span&gt;it(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;SSR category data renders correctly as tab list&amp;#39;&lt;/span&gt;, () &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  render(&amp;lt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;ViewsIndex&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;categories&lt;/span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;{mockCategories} /&amp;gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  expect(screen.getByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;category-tab-dev&amp;#39;&lt;/span&gt;)).toBeInTheDocument()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  expect(screen.getByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;category-tab-design&amp;#39;&lt;/span&gt;)).toBeInTheDocument()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;})
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;it(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;does not render tabs when categories are not provided&amp;#39;&lt;/span&gt;, () &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  render(&amp;lt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;ViewsIndex&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;categories&lt;/span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;{[]} /&amp;gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  expect(screen.queryByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;category-tabs&amp;#39;&lt;/span&gt;)).not.toBeInTheDocument()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;})
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;InstallCard&amp;rsquo;s tests were completely rewritten — from MSW-based API interception to direct props-driven assertions, since after the refactor, InstallCard no longer makes its own requests but receives data prefetched by its parent component via SSR:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-tsx&#34; data-lang=&#34;tsx&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;// Before refactor: InstallCard internally uses useSWR
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;&lt;/span&gt;server.use(http.&lt;span style=&#34;color:#ff6ac1&#34;&gt;get&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;/api/extensions&amp;#39;&lt;/span&gt;, () &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&amp;gt;&lt;/span&gt; { ... }))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;// After refactor: InstallCard becomes a pure display component
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;&lt;/span&gt;render(&amp;lt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;InstallCard&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;extensions&lt;/span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;{mockExtensions} /&amp;gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;expect(screen.getByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;install-card-vscode&amp;#39;&lt;/span&gt;)).toBeInTheDocument()
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Run the tests — widespread red, as expected.&lt;/p&gt;
+&lt;h3 id=&#34;green-phase&#34;&gt;
+  Green Phase
+&lt;/h3&gt;&lt;p&gt;AI modified the 6 files in dependency order:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;API layer: added type definitions and request functions&lt;/li&gt;
+&lt;li&gt;Constants file: removed the hardcoded category list&lt;/li&gt;
+&lt;li&gt;ViewsIndex: reads category data from props&lt;/li&gt;
+&lt;li&gt;InstallCard: removed &lt;code&gt;useSWR&lt;/code&gt;, switched to props-driven&lt;/li&gt;
+&lt;li&gt;SSR page: &lt;code&gt;getServerSideProps&lt;/code&gt; uses &lt;code&gt;Promise.all&lt;/code&gt; to prefetch 3 APIs in parallel&lt;/li&gt;
+&lt;li&gt;Type file: updated page props types&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;A critical point here: InstallCard went from making internal requests to being purely props-driven. Without test protection, this kind of change is easy to get wrong. But since tests had already defined the expected behavior, AI just needed to make them pass — the direction couldn&amp;rsquo;t drift.&lt;/p&gt;
+&lt;h3 id=&#34;verify-phase&#34;&gt;
+  Verify Phase
+&lt;/h3&gt;&lt;p&gt;&lt;code&gt;pnpm test:changed&lt;/code&gt; — 88 tests all green, under one hour.&lt;/p&gt;
+&lt;h2 id=&#34;case-study-2-sort-select--adding-a-new-feature&#34;&gt;
+  Case Study 2: Sort Select — Adding a New Feature
+&lt;/h2&gt;&lt;p&gt;The second case is adding a sort dropdown — a feature addition scenario. The requirement was to add a sort select next to the view toggle button, with options for default, favorites, installs, and name, passing the sort parameter to the search API.&lt;/p&gt;
+&lt;h3 id=&#34;red-phase-1&#34;&gt;
+  Red Phase
+&lt;/h3&gt;&lt;p&gt;AI wrote 4 tests:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-tsx&#34; data-lang=&#34;tsx&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;it(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;sort select exists with default value&amp;#39;&lt;/span&gt;, () &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  render(&amp;lt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;ViewsIndex&lt;/span&gt; {&lt;span style=&#34;color:#57c7ff&#34;&gt;...defaultProps&lt;/span&gt;} /&amp;gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff6ac1&#34;&gt;const&lt;/span&gt; select &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; screen.getByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;sort-select&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  expect(select).toHaveValue(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;default&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;})
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;it(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;sort select shares container with view toggle&amp;#39;&lt;/span&gt;, () &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  render(&amp;lt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;ViewsIndex&lt;/span&gt; {&lt;span style=&#34;color:#57c7ff&#34;&gt;...defaultProps&lt;/span&gt;} /&amp;gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff6ac1&#34;&gt;const&lt;/span&gt; toolbar &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; screen.getByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;view-toolbar&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  expect(within(toolbar).getByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;sort-select&amp;#39;&lt;/span&gt;)).toBeInTheDocument()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  expect(within(toolbar).getByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;view-toggle&amp;#39;&lt;/span&gt;)).toBeInTheDocument()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;})
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;it(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;changing sort sends sort parameter&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#ff6ac1&#34;&gt;async&lt;/span&gt; () &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  render(&amp;lt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;ViewsIndex&lt;/span&gt; {&lt;span style=&#34;color:#57c7ff&#34;&gt;...defaultProps&lt;/span&gt;} /&amp;gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff6ac1&#34;&gt;await&lt;/span&gt; userEvent.selectOptions(screen.getByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;sort-select&amp;#39;&lt;/span&gt;), &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;installs&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#78787e&#34;&gt;// Verify API is called with sort=installs parameter
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;&lt;/span&gt;})
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;it(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;changing sort resets page to 1&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#ff6ac1&#34;&gt;async&lt;/span&gt; () &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  render(&amp;lt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;ViewsIndex&lt;/span&gt; {&lt;span style=&#34;color:#57c7ff&#34;&gt;...defaultProps&lt;/span&gt;} /&amp;gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#78787e&#34;&gt;// Navigate to page 2, then change sort, verify page resets to 1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;&lt;/span&gt;})
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The interesting part of this case is that a problem was discovered while writing the tests. In our test environment, gate-ui&amp;rsquo;s &lt;code&gt;Select&lt;/code&gt; component is mocked using a native &lt;code&gt;&amp;lt;select&amp;gt;&lt;/code&gt; element. But the native select&amp;rsquo;s &lt;code&gt;onChange&lt;/code&gt; passes a &lt;code&gt;ChangeEvent&lt;/code&gt;, while the real gate-ui &lt;code&gt;Select&lt;/code&gt;&amp;rsquo;s &lt;code&gt;onChange&lt;/code&gt; passes the value string directly. If this discrepancy hadn&amp;rsquo;t been caught in the Red phase, the implementation would have worked in tests but behaved incorrectly in the real environment. So we fixed the mock in the Red phase to match the real component&amp;rsquo;s behavior.&lt;/p&gt;
+&lt;h3 id=&#34;green-phase-1&#34;&gt;
+  Green Phase
+&lt;/h3&gt;&lt;p&gt;Only 2 business files were modified: constants file with sort option definitions, and the view component with new state, dropdown, and API parameter passing.&lt;/p&gt;
+&lt;h3 id=&#34;verify-phase-1&#34;&gt;
+  Verify Phase
+&lt;/h3&gt;&lt;p&gt;&lt;code&gt;pnpm test:changed&lt;/code&gt; — 106 tests all green.&lt;/p&gt;
+&lt;h2 id=&#34;multi-agent-parallel-development&#34;&gt;
+  Multi-Agent Parallel Development
+&lt;/h2&gt;&lt;p&gt;An additional benefit of test coverage: you can run two or three AI Agents working on different modules simultaneously.&lt;/p&gt;
+&lt;p&gt;Changes must pass existing tests — breakages trigger immediate red, no manual review fallback needed. With robust test coverage, each Agent runs &lt;code&gt;pnpm test:changed&lt;/code&gt; after completing its changes. Green means no cross-contamination.&lt;/p&gt;
+&lt;p&gt;Conflict detection relies on two layers:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Same-file conflicts&lt;/strong&gt;: handled automatically by git merge&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Cross-file behavioral conflicts&lt;/strong&gt;: &lt;code&gt;test:changed&lt;/code&gt; uses dependency graph analysis. If Agent A modifies a component&amp;rsquo;s props structure, and Agent B&amp;rsquo;s module imports that component, Agent B&amp;rsquo;s tests are automatically included in the &lt;code&gt;test:changed&lt;/code&gt; execution scope&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;why-its-worth-doing&#34;&gt;
+  Why It&amp;rsquo;s Worth Doing
+&lt;/h2&gt;&lt;p&gt;Three benefits. First, Red-first forces you to think through requirements. If you let AI go straight from requirements to code, it can easily drift in a direction that&amp;rsquo;s hard to spot. Writing tests first means you must clarify what the feature should actually do — tests become executable requirements documentation. Second, AI&amp;rsquo;s changes become controllable. Code must pass existing tests after changes — breakages surface immediately. Third, refactoring becomes safe. When you need to extract hooks or restructure components, passing tests means you can merge with confidence.&lt;/p&gt;
+&lt;p&gt;On the quality side, after running this project with the workflow, functional bugs at the QA stage were very few. Feedback was mostly about UI details — spacing, colors — not logic errors. Additionally, the tests themselves serve as behavioral documentation — new team members can read tests to understand what a component should do.&lt;/p&gt;
+&lt;h2 id=&#34;costs-and-limitations&#34;&gt;
+  Costs and Limitations
+&lt;/h2&gt;&lt;p&gt;To be honest about the costs: the ratio of test code to business code is roughly 1.15:1, which is additional investment. But AI generates tests quickly, so this cost is primarily borne by AI.&lt;/p&gt;
+&lt;p&gt;On limitations, this approach works well for component development and refactoring with clear requirements and API-driven interfaces. If requirements are still in flux and UI hasn&amp;rsquo;t been finalized — the exploration phase — writing tests first becomes a burden. Pure styling work isn&amp;rsquo;t a great fit either, since CSS changes are hard to cover effectively with assertions.&lt;/p&gt;
+&lt;h2 id=&#34;summary&#34;&gt;
+  Summary
+&lt;/h2&gt;&lt;p&gt;Use tests to constrain AI, catching problems automatically at the coding stage rather than relying on someone to discover them later. Writing tests looks like an extra step, but it saves the time you&amp;rsquo;d otherwise spend tracking down bugs and reworking code.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -19,10 +19,143 @@
     
 
     
-    <lastBuildDate>Mon, 11 Nov 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 07 Apr 2026 00:00:00 +0000</lastBuildDate>
     
     <atom:link href="/zh/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>我的 AI 辅助前端 TDD 工作流</title>
+      <link>/zh/posts/ai-tdd-red-green-verify-workflow/</link>
+      <pubDate>Tue, 07 Apr 2026 00:00:00 +0000</pubDate>
+      <author>halfseteamedbun@gmail.com (Yiqi)</author>
+      <guid>/zh/posts/ai-tdd-red-green-verify-workflow/</guid>
+      <description>&lt;h2 id=&#34;背景&#34;&gt;
+  背景
+&lt;/h2&gt;&lt;p&gt;AI 写代码确实快，但快归快，它有两个比较明显的风险。第一个，改动范围不可控——你让它改一个模块，它有时候会顺手把旁边的东西也改了，连锁反应，别的地方就出问题了。第二个，实现结果不一定对——代码能跑不代表逻辑是对的，AI 有时候会很自信地写出一段看着没问题但其实是错的代码。&lt;/p&gt;
+&lt;p&gt;这些问题如果开发阶段没拦住，一路带到提测，那时候再回来排查，成本就远比开发阶段高了。所以我们想的是：&lt;strong&gt;有没有办法在编码阶段就自动把这些问题拦住，而不是靠人去一个一个验？&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;我们的答案是 TDD。我在一个内部工具平台项目 Skills Hub 中实践了一套 AI + TDD 的工作流，这篇文章记录核心思路、技术选型和真实案例。&lt;/p&gt;
+&lt;h2 id=&#34;tdd-工作流red--green--refactor&#34;&gt;
+  TDD 工作流：Red → Green → Refactor
+&lt;/h2&gt;&lt;p&gt;整体流程是 Red-Green-Refactor 三步循环，由 AI 辅助驱动。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;第一步，Red 阶段，写测试。&lt;/strong&gt; 拿到需求文档和接口文档之后，先让 AI 想清楚：这个功能要验证什么？然后生成对应的测试用例。这时候测试一定是失败的，因为功能代码还没写。这个红是预期内的，它恰好说明测试本身是有效的，不是一跑就绿的摆设。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;第二步，Green 阶段，实现代码。&lt;/strong&gt; 核心原则是写最少的代码让测试通过，不过度设计。测试就是验收标准，通过了才算行。这一步可以交给 AI——测试就是它的约束条件，不需要额外的自然语言描述。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;第三步，Refactor 阶段，验证。&lt;/strong&gt; 我们不跑全量测试，只跑 git 变更相关的，一条命令 &lt;code&gt;pnpm test:changed&lt;/code&gt;。它基于 git diff 加模块依赖图，自动算出哪些测试受影响，只跑那些，反馈很快。全绿就进入下一个循环。&lt;/p&gt;
+&lt;p&gt;关键在于：在 AI 辅助开发的场景下，&lt;strong&gt;测试不再只是质量保障工具，而是你交给 AI 的验收标准&lt;/strong&gt;。你定义&amp;quot;什么是对的&amp;quot;，AI 负责&amp;quot;怎么做到&amp;quot;。&lt;/p&gt;
+&lt;h2 id=&#34;两个关键技术选择&#34;&gt;
+  两个关键技术选择
+&lt;/h2&gt;&lt;p&gt;测试用例分两类，对应两个技术选型。&lt;/p&gt;
+&lt;h3 id=&#34;data-testid结构断言的稳定锚点&#34;&gt;
+  data-testid：结构断言的稳定锚点
+&lt;/h3&gt;&lt;p&gt;一类是结构和交互的断言，我们优先用 &lt;code&gt;data-testid&lt;/code&gt; 来定位元素。为什么不用文本？因为文字、图标、翻译这些在开发过程中经常变，&lt;code&gt;data-testid&lt;/code&gt; 是稳定的锚点，不会因为 UI 改了一个字测试就挂了。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-tsx&#34; data-lang=&#34;tsx&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;// 用文本断言：切换语言就挂
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;&lt;/span&gt;expect(screen.getByText(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;开发工具&amp;#39;&lt;/span&gt;)).toBeInTheDocument()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;// 用 data-testid：不管语言怎么切，结构不变就不挂
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;&lt;/span&gt;expect(screen.getByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;category-tab-dev&amp;#39;&lt;/span&gt;)).toBeInTheDocument()
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;data-testid&lt;/code&gt; 就是一个普通的 HTML attribute，对性能零影响。可以用 babel 插件在生产构建时剥离，但我们选择保留——QA 团队可以复用同一套 testid 做 E2E 测试，不需要维护两套定位策略。&lt;/p&gt;
+&lt;p&gt;另外一个收益：纯 UI 重构（比如把一个大组件拆成两个小组件）不需要改测试。只要 &lt;code&gt;data-testid&lt;/code&gt; 还在，测试不关心组件层级怎么变。&lt;/p&gt;
+&lt;h3 id=&#34;msw接口数据的断言&#34;&gt;
+  MSW：接口数据的断言
+&lt;/h3&gt;&lt;p&gt;另一类是接口数据的断言。用 MSW 模拟接口返回，构造 mock 数据，验证数据有没有正确渲染到页面上。比如接口返回了 &amp;ldquo;Skill 1&amp;rdquo;，页面上就应该能找到这个文本；翻到第二页的时候，请求参数里的 page 应该是 2。&lt;/p&gt;
+&lt;p&gt;我们写的是组件级的单元测试——每个测试文件对应一个组件，用 MSW 把接口依赖 mock 掉，测试边界就是组件本身。验证的是&amp;quot;给这个组件什么输入，它应该有什么行为&amp;quot;：props 驱动的渲染、用户交互后的状态变化、接口数据到 UI 的映射。&lt;/p&gt;
+&lt;h2 id=&#34;实战案例一category-api-ssr-重构&#34;&gt;
+  实战案例一：Category API SSR 重构
+&lt;/h2&gt;&lt;p&gt;第一个案例是分类接口的 SSR 改造，属于重构场景。Skills Hub 的分类列表原来是前端硬编码的，要改成从后端接口获取，SSR 预取。同时 InstallCard 组件原来每次切 tab 都发一次请求，也要改成 SSR 预取两份数据、本地切换。总共涉及 6 个文件的联动改动。&lt;/p&gt;
+&lt;h3 id=&#34;red-阶段&#34;&gt;
+  Red 阶段
+&lt;/h3&gt;&lt;p&gt;把需求和接口文档给 AI，告诉它 TDD 模式。AI 先只动测试文件，不碰业务代码。新增了 4 个测试用例：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-tsx&#34; data-lang=&#34;tsx&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;// views-index.test.tsx
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;&lt;/span&gt;it(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;SSR 返回的分类数据正确渲染为 tab 列表&amp;#39;&lt;/span&gt;, () &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  render(&amp;lt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;ViewsIndex&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;categories&lt;/span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;{mockCategories} /&amp;gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  expect(screen.getByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;category-tab-dev&amp;#39;&lt;/span&gt;)).toBeInTheDocument()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  expect(screen.getByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;category-tab-design&amp;#39;&lt;/span&gt;)).toBeInTheDocument()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;})
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;it(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;未提供分类数据时不渲染 tab&amp;#39;&lt;/span&gt;, () &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  render(&amp;lt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;ViewsIndex&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;categories&lt;/span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;{[]} /&amp;gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  expect(screen.queryByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;category-tabs&amp;#39;&lt;/span&gt;)).not.toBeInTheDocument()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;})
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;InstallCard 的测试也全部重写——从模拟接口拦截改成直接传 props 验证渲染，因为重构后 InstallCard 不再自己发请求，而是接收父组件通过 SSR 预取的数据：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-tsx&#34; data-lang=&#34;tsx&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;// 重构前的测试：InstallCard 内部用 useSWR 请求数据
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;&lt;/span&gt;server.use(http.&lt;span style=&#34;color:#ff6ac1&#34;&gt;get&lt;/span&gt;(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;/api/extensions&amp;#39;&lt;/span&gt;, () &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&amp;gt;&lt;/span&gt; { ... }))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;// 重构后的测试：InstallCard 变成纯展示组件
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;&lt;/span&gt;render(&amp;lt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;InstallCard&lt;/span&gt; &lt;span style=&#34;color:#57c7ff&#34;&gt;extensions&lt;/span&gt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt;{mockExtensions} /&amp;gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;expect(screen.getByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;install-card-vscode&amp;#39;&lt;/span&gt;)).toBeInTheDocument()
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;跑一下，大面积红，预期内的。&lt;/p&gt;
+&lt;h3 id=&#34;green-阶段&#34;&gt;
+  Green 阶段
+&lt;/h3&gt;&lt;p&gt;AI 按依赖顺序改 6 个文件：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;接口层：新增类型定义和请求函数&lt;/li&gt;
+&lt;li&gt;常量文件：删掉硬编码的分类列表&lt;/li&gt;
+&lt;li&gt;ViewsIndex：从 props 读取分类数据&lt;/li&gt;
+&lt;li&gt;InstallCard：移除 &lt;code&gt;useSWR&lt;/code&gt;，改为 props 驱动&lt;/li&gt;
+&lt;li&gt;SSR 页面：&lt;code&gt;getServerSideProps&lt;/code&gt; 里用 &lt;code&gt;Promise.all&lt;/code&gt; 并行预取 3 个 API&lt;/li&gt;
+&lt;li&gt;类型文件：更新 page props 类型&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;这里有个关键点：InstallCard 从内部发请求变成纯 props 驱动，这种改动如果没有测试保护很容易改漏。但因为测试已经定义了预期行为，AI 只要让测试通过就行，方向不会偏。&lt;/p&gt;
+&lt;h3 id=&#34;verify-阶段&#34;&gt;
+  Verify 阶段
+&lt;/h3&gt;&lt;p&gt;&lt;code&gt;pnpm test:changed&lt;/code&gt;——88 个测试全绿，不到一个小时。&lt;/p&gt;
+&lt;h2 id=&#34;实战案例二sort-select-新增功能&#34;&gt;
+  实战案例二：Sort Select 新增功能
+&lt;/h2&gt;&lt;p&gt;第二个案例是新增排序 Select，属于功能新增场景。需求是在视图切换按钮旁边加一个排序下拉框，选项有综合排序、收藏数、安装量、名称，选完之后把 sort 参数传给搜索接口。&lt;/p&gt;
+&lt;h3 id=&#34;red-阶段-1&#34;&gt;
+  Red 阶段
+&lt;/h3&gt;&lt;p&gt;AI 写了 4 个测试：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#e2e4e5;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-tsx&#34; data-lang=&#34;tsx&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;it(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;排序下拉框存在且默认选中&amp;#34;综合排序&amp;#34;&amp;#39;&lt;/span&gt;, () &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  render(&amp;lt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;ViewsIndex&lt;/span&gt; {&lt;span style=&#34;color:#57c7ff&#34;&gt;...defaultProps&lt;/span&gt;} /&amp;gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff6ac1&#34;&gt;const&lt;/span&gt; select &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; screen.getByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;sort-select&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  expect(select).toHaveValue(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;default&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;})
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;it(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;排序下拉框与视图切换共用容器&amp;#39;&lt;/span&gt;, () &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  render(&amp;lt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;ViewsIndex&lt;/span&gt; {&lt;span style=&#34;color:#57c7ff&#34;&gt;...defaultProps&lt;/span&gt;} /&amp;gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff6ac1&#34;&gt;const&lt;/span&gt; toolbar &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&lt;/span&gt; screen.getByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;view-toolbar&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  expect(within(toolbar).getByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;sort-select&amp;#39;&lt;/span&gt;)).toBeInTheDocument()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  expect(within(toolbar).getByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;view-toggle&amp;#39;&lt;/span&gt;)).toBeInTheDocument()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;})
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;it(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;切换排序发送 sort 参数&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#ff6ac1&#34;&gt;async&lt;/span&gt; () &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  render(&amp;lt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;ViewsIndex&lt;/span&gt; {&lt;span style=&#34;color:#57c7ff&#34;&gt;...defaultProps&lt;/span&gt;} /&amp;gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#ff6ac1&#34;&gt;await&lt;/span&gt; userEvent.selectOptions(screen.getByTestId(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;sort-select&amp;#39;&lt;/span&gt;), &lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;installs&amp;#39;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#78787e&#34;&gt;// 验证 API 被调用时携带了 sort=installs 参数
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;&lt;/span&gt;})
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;it(&lt;span style=&#34;color:#5af78e&#34;&gt;&amp;#39;切换排序重置页码为 1&amp;#39;&lt;/span&gt;, &lt;span style=&#34;color:#ff6ac1&#34;&gt;async&lt;/span&gt; () &lt;span style=&#34;color:#ff6ac1&#34;&gt;=&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  render(&amp;lt;&lt;span style=&#34;color:#ff6ac1&#34;&gt;ViewsIndex&lt;/span&gt; {&lt;span style=&#34;color:#57c7ff&#34;&gt;...defaultProps&lt;/span&gt;} /&amp;gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#78787e&#34;&gt;// 先翻到第 2 页，再切排序，验证页码回到 1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#78787e&#34;&gt;&lt;/span&gt;})
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;这个案例有意思的地方在于，写测试的过程中就发现了一个问题。我们测试环境里 gate-ui 的 &lt;code&gt;Select&lt;/code&gt; 组件是 mock 的，用的是原生 select 标签。但原生 select 的 &lt;code&gt;onChange&lt;/code&gt; 传的是 &lt;code&gt;ChangeEvent&lt;/code&gt;，而真实的 gate-ui &lt;code&gt;Select&lt;/code&gt; 的 &lt;code&gt;onChange&lt;/code&gt; 直接传 value 字符串。如果不在 Red 阶段发现这个差异，等到写实现代码的时候就会踩坑——组件在测试里能跑但真实环境行为不对。所以我们在 Red 阶段就修正了 mock，让它的行为和真实组件一致。&lt;/p&gt;
+&lt;h3 id=&#34;green-阶段-1&#34;&gt;
+  Green 阶段
+&lt;/h3&gt;&lt;p&gt;改了 2 个业务文件：常量文件新增排序选项，视图组件新增 state、下拉框和接口传参。&lt;/p&gt;
+&lt;h3 id=&#34;verify-阶段-1&#34;&gt;
+  Verify 阶段
+&lt;/h3&gt;&lt;p&gt;&lt;code&gt;pnpm test:changed&lt;/code&gt;——106 个测试全绿。&lt;/p&gt;
+&lt;h2 id=&#34;多-agent-并行开发&#34;&gt;
+  多 Agent 并行开发
+&lt;/h2&gt;&lt;p&gt;测试覆盖带来的一个额外收益是：可以同时开两三个 AI Agent 改不同模块。&lt;/p&gt;
+&lt;p&gt;改完代码必须跑过已有测试，写坏了立刻报红，不是靠人肉 review 兜底。测试覆盖健壮之后，每个 Agent 做完改动就跑 &lt;code&gt;pnpm test:changed&lt;/code&gt;，绿了就说明没有交叉污染。&lt;/p&gt;
+&lt;p&gt;冲突检测靠两层机制：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;同文件冲突&lt;/strong&gt;：git merge 自动处理&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;跨文件行为冲突&lt;/strong&gt;：&lt;code&gt;test:changed&lt;/code&gt; 基于依赖图分析。如果 Agent A 改了某个组件的 props 结构，而 Agent B 的模块 import 了这个组件，那 Agent B 的测试会被自动纳入 &lt;code&gt;test:changed&lt;/code&gt; 的执行范围&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;为什么值得做&#34;&gt;
+  为什么值得做
+&lt;/h2&gt;&lt;p&gt;三个好处。第一，Red 先行，强制想清楚需求。如果直接让 AI 拿需求去写代码，它很可能写偏方向你还不容易发现。先写测试，你必须搞清楚这个功能到底应该做什么，测试就是可执行的需求文档。第二，AI 的改动变得可控。改完代码必须跑过已有测试，写坏了立刻报红。第三，重构有保障。需要抽 hooks、调整组件结构的时候，跑通测试就能合并，不用反复人工验证。&lt;/p&gt;
+&lt;p&gt;质量方面，这个项目跑下来，提测阶段功能性 bug 非常少，反馈的基本是 UI 细节——间距、颜色这些，不是逻辑错误。另外测试本身就是行为文档，新人接手读测试就知道组件该有什么行为。&lt;/p&gt;
+&lt;h2 id=&#34;成本和局限&#34;&gt;
+  成本和局限
+&lt;/h2&gt;&lt;p&gt;诚实地说一下成本。测试代码量和业务代码量比大概 1.15:1，有额外投入。但 AI 生成测试很快，这个成本主要是 AI 承担的。&lt;/p&gt;
+&lt;p&gt;局限方面，这套方案适合需求明确、接口驱动的组件开发和重构。如果需求还在反复变、UI 还没定稿的探索阶段，先写测试反而是负担。纯样式调整也不太适合，CSS 变化很难用断言有效覆盖。&lt;/p&gt;
+&lt;h2 id=&#34;总结&#34;&gt;
+  总结
+&lt;/h2&gt;&lt;p&gt;用测试来约束 AI，让问题在编码阶段自动被拦住，而不是靠人到后面去发现。写测试看着多了一步，但它省掉的是后面排查 bug、反复返工的时间。&lt;/p&gt;</description>
+    </item>
     
     <item>
       <title>详解 KOA 洋葱模型的实现原理</title>

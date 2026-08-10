@@ -32,7 +32,7 @@
       <guid>/zh/posts/auto-merge/</guid>
       <description>&lt;h2 id=&#34;背景&#34;&gt;
   背景
-&lt;/h2&gt;&lt;p&gt;公司的 git flow 表明，在发布代码合并到 &lt;code&gt;master&lt;/code&gt; 分支后，&lt;code&gt;stg&lt;/code&gt; 和 &lt;code&gt;pre&lt;/code&gt; 分支也必须包含最新的 &lt;code&gt;master&lt;/code&gt; 代码。&lt;/p&gt;
+&lt;/h2&gt;&lt;p&gt;公司的 git flow 要求，在发布代码合并到 &lt;code&gt;master&lt;/code&gt; 分支后，&lt;code&gt;stg&lt;/code&gt; 和 &lt;code&gt;pre&lt;/code&gt; 分支也必须包含最新的 &lt;code&gt;master&lt;/code&gt; 代码。&lt;/p&gt;
 &lt;p&gt;为此，公司设置了一个机器人（bot）来比较 commit 差异。如果在发布代码合并到 &lt;code&gt;master&lt;/code&gt; 分支一天后，&lt;code&gt;stg&lt;/code&gt; 和 &lt;code&gt;pre&lt;/code&gt; 分支仍未更新，团队收到提醒。&lt;/p&gt;
 &lt;p&gt;然而，我所在的团队成员总是忘记手动执行这个合并操作，导致频繁的提醒，影响了工作效率。&lt;/p&gt;
 &lt;h2 id=&#34;解决方案&#34;&gt;

@@ -2,184 +2,262 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-        <loc>http://localhost:1313/posts/auto-merge/</loc>
-        <lastmod>2024-05-18T00:00:00+00:00</lastmod>
+        <loc>https://yiqi-blog.netlify.app/tags/ai/</loc>
+        <lastmod>2026-04-07T00:00:00+00:00</lastmod>
         <xhtml:link
           rel="alternate"
           hreflang="zh"
-          href="http://localhost:1313/zh/posts/auto-merge/"
+          href="https://yiqi-blog.netlify.app/zh/tags/ai/"
         />
         <xhtml:link
           rel="alternate"
           hreflang="en"
-          href="http://localhost:1313/posts/auto-merge/"
+          href="https://yiqi-blog.netlify.app/tags/ai/"
         />
       </url><url>
-        <loc>http://localhost:1313/tags/development-process-optimization/</loc>
-        <lastmod>2024-05-18T00:00:00+00:00</lastmod>
+        <loc>https://yiqi-blog.netlify.app/tags/frontend/</loc>
+        <lastmod>2026-04-07T00:00:00+00:00</lastmod>
         <xhtml:link
           rel="alternate"
           hreflang="zh"
-          href="http://localhost:1313/zh/tags/development-process-optimization/"
+          href="https://yiqi-blog.netlify.app/zh/tags/frontend/"
         />
         <xhtml:link
           rel="alternate"
           hreflang="en"
-          href="http://localhost:1313/tags/development-process-optimization/"
+          href="https://yiqi-blog.netlify.app/tags/frontend/"
         />
       </url><url>
-        <loc>http://localhost:1313/tags/gitlab-ci/cd/</loc>
-        <lastmod>2024-05-18T00:00:00+00:00</lastmod>
+        <loc>https://yiqi-blog.netlify.app/tags/msw/</loc>
+        <lastmod>2026-04-07T00:00:00+00:00</lastmod>
         <xhtml:link
           rel="alternate"
           hreflang="zh"
-          href="http://localhost:1313/zh/tags/gitlab-ci/cd/"
+          href="https://yiqi-blog.netlify.app/zh/tags/msw/"
         />
         <xhtml:link
           rel="alternate"
           hreflang="en"
-          href="http://localhost:1313/tags/gitlab-ci/cd/"
+          href="https://yiqi-blog.netlify.app/tags/msw/"
         />
       </url><url>
-        <loc>http://localhost:1313/posts/</loc>
-        <lastmod>2024-05-18T00:00:00+00:00</lastmod>
+        <loc>https://yiqi-blog.netlify.app/posts/ai-tdd-red-green-verify-workflow/</loc>
+        <lastmod>2026-04-07T00:00:00+00:00</lastmod>
         <xhtml:link
           rel="alternate"
           hreflang="zh"
-          href="http://localhost:1313/zh/posts/"
+          href="https://yiqi-blog.netlify.app/zh/posts/ai-tdd-red-green-verify-workflow/"
         />
         <xhtml:link
           rel="alternate"
           hreflang="en"
-          href="http://localhost:1313/posts/"
+          href="https://yiqi-blog.netlify.app/posts/ai-tdd-red-green-verify-workflow/"
         />
       </url><url>
-        <loc>http://localhost:1313/tags/</loc>
-        <lastmod>2024-05-18T00:00:00+00:00</lastmod>
+        <loc>https://yiqi-blog.netlify.app/posts/</loc>
+        <lastmod>2026-04-07T00:00:00+00:00</lastmod>
         <xhtml:link
           rel="alternate"
           hreflang="zh"
-          href="http://localhost:1313/zh/tags/"
+          href="https://yiqi-blog.netlify.app/zh/posts/"
         />
         <xhtml:link
           rel="alternate"
           hreflang="en"
-          href="http://localhost:1313/tags/"
+          href="https://yiqi-blog.netlify.app/posts/"
         />
       </url><url>
-        <loc>http://localhost:1313/</loc>
-        <lastmod>2024-05-18T00:00:00+00:00</lastmod>
+        <loc>https://yiqi-blog.netlify.app/tags/</loc>
+        <lastmod>2026-04-07T00:00:00+00:00</lastmod>
         <xhtml:link
           rel="alternate"
           hreflang="zh"
-          href="http://localhost:1313/zh/"
+          href="https://yiqi-blog.netlify.app/zh/tags/"
         />
         <xhtml:link
           rel="alternate"
           hreflang="en"
-          href="http://localhost:1313/"
+          href="https://yiqi-blog.netlify.app/tags/"
         />
       </url><url>
-        <loc>http://localhost:1313/posts/advance-typescript/</loc>
+        <loc>https://yiqi-blog.netlify.app/tags/tdd/</loc>
+        <lastmod>2026-04-07T00:00:00+00:00</lastmod>
+        <xhtml:link
+          rel="alternate"
+          hreflang="zh"
+          href="https://yiqi-blog.netlify.app/zh/tags/tdd/"
+        />
+        <xhtml:link
+          rel="alternate"
+          hreflang="en"
+          href="https://yiqi-blog.netlify.app/tags/tdd/"
+        />
+      </url><url>
+        <loc>https://yiqi-blog.netlify.app/tags/testing/</loc>
+        <lastmod>2026-04-07T00:00:00+00:00</lastmod>
+        <xhtml:link
+          rel="alternate"
+          hreflang="zh"
+          href="https://yiqi-blog.netlify.app/zh/tags/testing/"
+        />
+        <xhtml:link
+          rel="alternate"
+          hreflang="en"
+          href="https://yiqi-blog.netlify.app/tags/testing/"
+        />
+      </url><url>
+        <loc>https://yiqi-blog.netlify.app/</loc>
+        <lastmod>2026-04-07T00:00:00+00:00</lastmod>
+        <xhtml:link
+          rel="alternate"
+          hreflang="zh"
+          href="https://yiqi-blog.netlify.app/zh/"
+        />
+        <xhtml:link
+          rel="alternate"
+          hreflang="en"
+          href="https://yiqi-blog.netlify.app/"
+        />
+      </url><url>
+        <loc>https://yiqi-blog.netlify.app/posts/auto-merge/</loc>
+        <lastmod>2024-05-18T00:00:00+00:00</lastmod>
+        <xhtml:link
+          rel="alternate"
+          hreflang="zh"
+          href="https://yiqi-blog.netlify.app/zh/posts/auto-merge/"
+        />
+        <xhtml:link
+          rel="alternate"
+          hreflang="en"
+          href="https://yiqi-blog.netlify.app/posts/auto-merge/"
+        />
+      </url><url>
+        <loc>https://yiqi-blog.netlify.app/tags/development-process-optimization/</loc>
+        <lastmod>2024-05-18T00:00:00+00:00</lastmod>
+        <xhtml:link
+          rel="alternate"
+          hreflang="zh"
+          href="https://yiqi-blog.netlify.app/zh/tags/development-process-optimization/"
+        />
+        <xhtml:link
+          rel="alternate"
+          hreflang="en"
+          href="https://yiqi-blog.netlify.app/tags/development-process-optimization/"
+        />
+      </url><url>
+        <loc>https://yiqi-blog.netlify.app/tags/gitlab-ci/cd/</loc>
+        <lastmod>2024-05-18T00:00:00+00:00</lastmod>
+        <xhtml:link
+          rel="alternate"
+          hreflang="zh"
+          href="https://yiqi-blog.netlify.app/zh/tags/gitlab-ci/cd/"
+        />
+        <xhtml:link
+          rel="alternate"
+          hreflang="en"
+          href="https://yiqi-blog.netlify.app/tags/gitlab-ci/cd/"
+        />
+      </url><url>
+        <loc>https://yiqi-blog.netlify.app/posts/advance-typescript/</loc>
         <lastmod>2024-03-01T16:23:03+08:00</lastmod>
         <xhtml:link
           rel="alternate"
           hreflang="zh"
-          href="http://localhost:1313/zh/posts/advance-typescript/"
+          href="https://yiqi-blog.netlify.app/zh/posts/advance-typescript/"
         />
         <xhtml:link
           rel="alternate"
           hreflang="en"
-          href="http://localhost:1313/posts/advance-typescript/"
+          href="https://yiqi-blog.netlify.app/posts/advance-typescript/"
         />
       </url><url>
-        <loc>http://localhost:1313/tags/fe/</loc>
+        <loc>https://yiqi-blog.netlify.app/tags/fe/</loc>
         <lastmod>2024-03-01T16:23:03+08:00</lastmod>
         <xhtml:link
           rel="alternate"
           hreflang="zh"
-          href="http://localhost:1313/zh/tags/fe/"
+          href="https://yiqi-blog.netlify.app/zh/tags/fe/"
         />
         <xhtml:link
           rel="alternate"
           hreflang="en"
-          href="http://localhost:1313/tags/fe/"
+          href="https://yiqi-blog.netlify.app/tags/fe/"
         />
       </url><url>
-        <loc>http://localhost:1313/tags/typescript/</loc>
+        <loc>https://yiqi-blog.netlify.app/tags/typescript/</loc>
         <lastmod>2024-03-01T16:23:03+08:00</lastmod>
         <xhtml:link
           rel="alternate"
           hreflang="zh"
-          href="http://localhost:1313/zh/tags/typescript/"
+          href="https://yiqi-blog.netlify.app/zh/tags/typescript/"
         />
         <xhtml:link
           rel="alternate"
           hreflang="en"
-          href="http://localhost:1313/tags/typescript/"
+          href="https://yiqi-blog.netlify.app/tags/typescript/"
         />
       </url><url>
-        <loc>http://localhost:1313/posts/react-shared-components-compound-pattern-journey/</loc>
+        <loc>https://yiqi-blog.netlify.app/posts/react-shared-components-compound-pattern-journey/</loc>
         <lastmod>2024-01-11T00:00:00+00:00</lastmod>
         <xhtml:link
           rel="alternate"
           hreflang="zh"
-          href="http://localhost:1313/zh/posts/react-shared-components-compound-pattern-journey/"
+          href="https://yiqi-blog.netlify.app/zh/posts/react-shared-components-compound-pattern-journey/"
         />
         <xhtml:link
           rel="alternate"
           hreflang="en"
-          href="http://localhost:1313/posts/react-shared-components-compound-pattern-journey/"
+          href="https://yiqi-blog.netlify.app/posts/react-shared-components-compound-pattern-journey/"
         />
       </url><url>
-        <loc>http://localhost:1313/tags/patterns/</loc>
+        <loc>https://yiqi-blog.netlify.app/tags/patterns/</loc>
         <lastmod>2024-01-11T00:00:00+00:00</lastmod>
         <xhtml:link
           rel="alternate"
           hreflang="zh"
-          href="http://localhost:1313/zh/tags/patterns/"
+          href="https://yiqi-blog.netlify.app/zh/tags/patterns/"
         />
         <xhtml:link
           rel="alternate"
           hreflang="en"
-          href="http://localhost:1313/tags/patterns/"
+          href="https://yiqi-blog.netlify.app/tags/patterns/"
         />
       </url><url>
-        <loc>http://localhost:1313/tags/react/</loc>
+        <loc>https://yiqi-blog.netlify.app/tags/react/</loc>
         <lastmod>2024-01-11T00:00:00+00:00</lastmod>
         <xhtml:link
           rel="alternate"
           hreflang="zh"
-          href="http://localhost:1313/zh/tags/react/"
+          href="https://yiqi-blog.netlify.app/zh/tags/react/"
         />
         <xhtml:link
           rel="alternate"
           hreflang="en"
-          href="http://localhost:1313/tags/react/"
+          href="https://yiqi-blog.netlify.app/tags/react/"
         />
       </url><url>
-        <loc>http://localhost:1313/about/</loc>
+        <loc>https://yiqi-blog.netlify.app/about/</loc>
         <xhtml:link
           rel="alternate"
           hreflang="zh"
-          href="http://localhost:1313/zh/about/"
+          href="https://yiqi-blog.netlify.app/zh/about/"
         />
         <xhtml:link
           rel="alternate"
           hreflang="en"
-          href="http://localhost:1313/about/"
+          href="https://yiqi-blog.netlify.app/about/"
         />
       </url><url>
-        <loc>http://localhost:1313/categories/</loc>
+        <loc>https://yiqi-blog.netlify.app/categories/</loc>
         <xhtml:link
           rel="alternate"
           hreflang="zh"
-          href="http://localhost:1313/zh/categories/"
+          href="https://yiqi-blog.netlify.app/zh/categories/"
         />
         <xhtml:link
           rel="alternate"
           hreflang="en"
-          href="http://localhost:1313/categories/"
+          href="https://yiqi-blog.netlify.app/categories/"
         />
       </url>
 </urlset>
